@@ -44,12 +44,14 @@ const graphqlLogger = new Logger('GraphQL');
 				const message =
 					error?.extensions?.exception?.response?.message || error?.extensions?.response?.message || error?.message;
 				graphqlLogger.error(`${code ?? 'ERROR'}: ${JSON.stringify(message)}`);
-				// Don't leak internal error text/stack to clients in production; unexpected
-				// (non-HttpException) errors surface as INTERNAL_SERVER_ERROR — mask those.
-				const leak = process.env.NODE_ENV !== 'production' || code !== 'INTERNAL_SERVER_ERROR';
+				// Note: under Apollo Server 4 + @nestjs/graphql, intentional HttpExceptions
+				// (401/404/429...) reach here with code INTERNAL_SERVER_ERROR and no recoverable
+				// HTTP status, so they're indistinguishable from genuine 500s — masking by code
+				// would hide real auth/validation messages ("Wrong password" etc.). formatError
+				// never returns a stack, so we surface the message as the app always has.
 				return {
 					code,
-					message: leak ? message : 'Internal server error',
+					message,
 				};
 			},
 		}),
