@@ -22,9 +22,11 @@ const graphqlLogger = new Logger('GraphQL');
 			validationSchema: Joi.object({
 				NODE_ENV: Joi.string().valid('development', 'production', 'test').default('development'),
 				SECRET_TOKEN: Joi.string().required(),
-				REFRESH_SECRET: Joi.string().required(),
+				// Optional by design: REFRESH_SECRET falls back to SECRET_TOKEN+'_refresh',
+				// and MONGO_DEV is unset in prod (which selects MONGO_PROD via NODE_ENV).
+				REFRESH_SECRET: Joi.string().optional(),
 				MONGO_PROD: Joi.string().required(),
-				MONGO_DEV: Joi.string().required(),
+				MONGO_DEV: Joi.string().optional(),
 				PORT_API: Joi.number().default(3007),
 				PORT_BATCH: Joi.number().default(3008),
 			}),
