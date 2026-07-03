@@ -33,4 +33,7 @@ const CommentSchema = new Schema(
 	{ timestamps: true, collection: 'comments' },
 );
 
+// getComments filters by commentRefId + commentStatus and sorts by createdAt.
+CommentSchema.index({ commentRefId: 1, commentStatus: 1, createdAt: -1 });
+
 export default CommentSchema;

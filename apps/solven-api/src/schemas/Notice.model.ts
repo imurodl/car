@@ -34,4 +34,7 @@ const NoticeSchema = new Schema(
 	{ timestamps: true, collection: 'notices' },
 );
 
+// getAllNotices optionally filters by noticeStatus + noticeCategory and sorts by createdAt.
+NoticeSchema.index({ noticeStatus: 1, noticeCategory: 1, createdAt: -1 });
+
 export default NoticeSchema;

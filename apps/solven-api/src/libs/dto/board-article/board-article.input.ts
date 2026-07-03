@@ -1,5 +1,5 @@
 import { Field, InputType, Int } from '@nestjs/graphql';
-import { IsIn, IsNotEmpty, IsOptional, Length, Min } from 'class-validator';
+import { IsIn, IsNotEmpty, IsOptional, Length, Max, Min } from 'class-validator';
 import { ObjectId } from 'mongoose';
 import { BoardArticleCategory, BoardArticleStatus } from '../../enums/board-article.enum';
 import { Direction } from '../../enums/common.enum';
@@ -47,11 +47,13 @@ class BAISearch {
 export class BoardArticlesInquiry {
 	@IsNotEmpty()
 	@Min(1)
+	@Max(1000)
 	@Field(() => Int)
 	page: number;
 
 	@IsNotEmpty()
 	@Min(1)
+	@Max(100)
 	@Field(() => Int)
 	limit: number;
 
@@ -84,11 +86,13 @@ class ABAISearch {
 export class AllBoardArticlesInquiry {
 	@IsNotEmpty()
 	@Min(1)
+	@Max(1000)
 	@Field(() => Int)
 	page: number;
 
 	@IsNotEmpty()
 	@Min(1)
+	@Max(100)
 	@Field(() => Int)
 	limit: number;
 

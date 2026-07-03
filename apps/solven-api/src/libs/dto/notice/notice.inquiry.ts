@@ -1,5 +1,5 @@
 import { Field, InputType, Int } from '@nestjs/graphql';
-import { IsEnum, IsInt, IsOptional, Min } from 'class-validator';
+import { IsEnum, IsInt, IsOptional, Max, Min } from 'class-validator';
 import { NoticeCategory, NoticeStatus } from '../../enums/notice.enum';
 
 @InputType()
@@ -7,12 +7,14 @@ export class AllNoticesInquiry {
 	@IsOptional()
 	@IsInt()
 	@Min(1)
+	@Max(1000)
 	@Field(() => Int, { nullable: true })
 	page?: number = 1;
 
 	@IsOptional()
 	@IsInt()
 	@Min(1)
+	@Max(100)
 	@Field(() => Int, { nullable: true })
 	limit?: number = 10;
 

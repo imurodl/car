@@ -1,6 +1,8 @@
 import { Args, Mutation, Query, Resolver } from '@nestjs/graphql';
 import { CommentService } from './comment.service';
 import { Logger, UseGuards } from '@nestjs/common';
+import { Throttle } from '@nestjs/throttler';
+import { GqlThrottlerGuard } from '../auth/guards/gql-throttler.guard';
 import { AuthGuard } from '../auth/guards/auth.guard';
 import { Comment, Comments } from '../../libs/dto/comment/comment';
 import { CommentInput, CommentsInquiry } from '../../libs/dto/comment/comment.input';
@@ -19,7 +21,8 @@ export class CommentResolver {
 
 	constructor(private readonly commentService: CommentService) {}
 
-	@UseGuards(AuthGuard)
+	@Throttle({ default: { limit: 15, ttl: 60000 } })
+	@UseGuards(AuthGuard, GqlThrottlerGuard)
 	@Mutation(() => Comment)
 	public async createComment(
 		@Args('input') input: CommentInput,

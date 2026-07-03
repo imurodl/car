@@ -21,7 +21,12 @@ async function bootstrap() {
 			crossOriginResourcePolicy: { policy: 'cross-origin' },
 		}),
 	);
-	app.useGlobalPipes(new ValidationPipe());
+	// whitelist strips unknown top-level props; transform coerces payloads into DTO
+	// instances so class-validator constraints (e.g. @Max page/limit caps) run.
+	// forbidNonWhitelisted is intentionally omitted — the code-first GraphQL schema
+	// already rejects unknown fields, and several @Field-only inputs carry no
+	// class-validator decorators, so forbidding them would break valid requests.
+	app.useGlobalPipes(new ValidationPipe({ whitelist: true, transform: true }));
 	app.useGlobalInterceptors(new LoggingInterceptor());
 	app.enableCors({
 		origin: ['https://solven.uz', 'http://localhost:3000', 'http://localhost:3006'],

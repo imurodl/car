@@ -16,14 +16,15 @@ export class LoggingInterceptor implements NestInterceptor {
 		} else if (requestType === 'graphql') {
 			/* (1) print request */
 			const gqlContext = GqlExecutionContext.create(context);
-			this.logger.log(`${this.stringify(gqlContext.getContext().req.body)}`, 'REQUEST');
+			const body = this.redact(gqlContext.getContext().req.body);
+			this.logger.log(`${this.stringify(body)}`, 'REQUEST');
 
 			/* (2) error handling via graphql */
 			/* (3) no error => giving response below */
 			return next.handle().pipe(
 				tap((context) => {
 					const responseTime = Date.now() - recordTime;
-					this.logger.log(`${this.stringify(context)} ${responseTime}ms \n \n`, 'RESPONSE');
+					this.logger.log(`${this.stringify(this.redact(context))} ${responseTime}ms \n \n`, 'RESPONSE');
 				}),
 			);
 		}
@@ -32,5 +33,19 @@ export class LoggingInterceptor implements NestInterceptor {
 
 	private stringify(context: ExecutionContext): string {
 		return JSON.stringify(context).slice(0, 75);
+	}
+
+	// Deep-copy the payload with any password-bearing key masked so credentials
+	// never reach stdout (login/signup mutations carry memberPassword in the body).
+	private redact(value: any): any {
+		if (Array.isArray(value)) return value.map((item) => this.redact(item));
+		if (value && typeof value === 'object') {
+			const result: any = {};
+			for (const key of Object.keys(value)) {
+				result[key] = /password/i.test(key) ? '[REDACTED]' : this.redact(value[key]);
+			}
+			return result;
+		}
+		return value;
 	}
 }

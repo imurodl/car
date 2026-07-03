@@ -1,6 +1,8 @@
 import { Args, Mutation, Query, Resolver } from '@nestjs/graphql';
 import { BoardArticleService } from './board-article.service';
 import { Logger, UseGuards } from '@nestjs/common';
+import { Throttle } from '@nestjs/throttler';
+import { GqlThrottlerGuard } from '../auth/guards/gql-throttler.guard';
 import { AuthGuard } from '../auth/guards/auth.guard';
 import { BoardArticle, BoardArticles } from '../../libs/dto/board-article/board-article';
 import {
@@ -23,7 +25,8 @@ export class BoardArticleResolver {
 
 	constructor(private readonly boardArticleService: BoardArticleService) {}
 
-	@UseGuards(AuthGuard)
+	@Throttle({ default: { limit: 10, ttl: 60000 } })
+	@UseGuards(AuthGuard, GqlThrottlerGuard)
 	@Mutation((returns) => BoardArticle)
 	public async createBoardArticle(
 		@Args('input') input: BoardArticleInput,
@@ -66,7 +69,8 @@ export class BoardArticleResolver {
 		return await this.boardArticleService.getBoardArticles(memberId, articleId);
 	}
 
-	@UseGuards(AuthGuard)
+	@Throttle({ default: { limit: 60, ttl: 60000 } })
+	@UseGuards(AuthGuard, GqlThrottlerGuard)
 	@Mutation(() => BoardArticle)
 	public async likeTargetBoardArticle(
 		@Args('articleId') input: string,

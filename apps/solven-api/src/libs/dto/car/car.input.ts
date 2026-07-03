@@ -1,5 +1,5 @@
 import { Field, InputType, Int } from '@nestjs/graphql';
-import { IsIn, IsInt, IsNotEmpty, IsOptional, Length, Min } from 'class-validator';
+import { IsIn, IsInt, IsNotEmpty, IsOptional, Length, Max, Min } from 'class-validator';
 import {
 	CarColor,
 	CarFuelType,
@@ -195,11 +195,13 @@ class CarsISearch {
 export class CarsInquiry {
 	@IsNotEmpty()
 	@Min(1)
+	@Max(1000)
 	@Field(() => Int)
 	page: number;
 
 	@IsNotEmpty()
 	@Min(1)
+	@Max(100)
 	@Field(() => Int)
 	limit: number;
 
@@ -228,11 +230,13 @@ class ACISearch {
 export class AgentCarsInquiry {
 	@IsNotEmpty()
 	@Min(1)
+	@Max(1000)
 	@Field(() => Int)
 	page: number;
 
 	@IsNotEmpty()
 	@Min(1)
+	@Max(100)
 	@Field(() => Int)
 	limit: number;
 
@@ -265,11 +269,13 @@ class ALCISearch {
 export class AllCarsInquiry {
 	@IsNotEmpty()
 	@Min(1)
+	@Max(1000)
 	@Field(() => Int)
 	page: number;
 
 	@IsNotEmpty()
 	@Min(1)
+	@Max(100)
 	@Field(() => Int)
 	limit: number;
 
@@ -291,11 +297,13 @@ export class AllCarsInquiry {
 export class OrdinaryInquiry {
 	@IsNotEmpty()
 	@Min(1)
+	@Max(1000)
 	@Field(() => Int)
 	page: number;
 
 	@IsNotEmpty()
 	@Min(1)
+	@Max(100)
 	@Field(() => Int)
 	limit: number;
 }

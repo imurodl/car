@@ -96,7 +96,8 @@ export class MemberResolver {
 		return await this.memberService.getAgents(memberId, input);
 	}
 
-	@UseGuards(AuthGuard)
+	@Throttle({ default: { limit: 60, ttl: 60000 } })
+	@UseGuards(AuthGuard, GqlThrottlerGuard)
 	@Mutation(() => Member)
 	public async likeTargetMember(
 		@Args('memberId') input: string,
@@ -135,7 +136,8 @@ export class MemberResolver {
 		return path.join('uploads', path.basename(target ?? ''), imageName);
 	}
 
-	@UseGuards(AuthGuard)
+	@Throttle({ default: { limit: 20, ttl: 60000 } })
+	@UseGuards(AuthGuard, GqlThrottlerGuard)
 	@Mutation((returns) => String)
 	public async imageUploader(
 		@Args({ name: 'file', type: () => GraphQLUpload })
@@ -163,7 +165,8 @@ export class MemberResolver {
 		return url;
 	}
 
-	@UseGuards(AuthGuard)
+	@Throttle({ default: { limit: 20, ttl: 60000 } })
+	@UseGuards(AuthGuard, GqlThrottlerGuard)
 	@Mutation((returns) => [String])
 	public async imagesUploader(
 		@Args('files', { type: () => [GraphQLUpload] })

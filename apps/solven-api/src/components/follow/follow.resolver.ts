@@ -1,6 +1,8 @@
 import { Args, Mutation, Query, Resolver } from '@nestjs/graphql';
 import { FollowService } from './follow.service';
 import { Logger, UseGuards } from '@nestjs/common';
+import { Throttle } from '@nestjs/throttler';
+import { GqlThrottlerGuard } from '../auth/guards/gql-throttler.guard';
 import { AuthGuard } from '../auth/guards/auth.guard';
 import { Follower, Followers, Followings } from '../../libs/dto/follow/follow';
 import { AuthMember } from '../auth/decorators/authMember.decorator';
@@ -15,7 +17,8 @@ export class FollowResolver {
 
 	constructor(private readonly followService: FollowService) {}
 
-	@UseGuards(AuthGuard)
+	@Throttle({ default: { limit: 60, ttl: 60000 } })
+	@UseGuards(AuthGuard, GqlThrottlerGuard)
 	@Mutation(() => Follower)
 	public async subscribe(
 		@Args('input') input: string, //
@@ -26,7 +29,8 @@ export class FollowResolver {
 		return await this.followService.subscribe(memberId, followingId);
 	}
 
-	@UseGuards(AuthGuard)
+	@Throttle({ default: { limit: 60, ttl: 60000 } })
+	@UseGuards(AuthGuard, GqlThrottlerGuard)
 	@Mutation(() => Follower)
 	public async unsubscribe(
 		@Args('input') input: string, //
