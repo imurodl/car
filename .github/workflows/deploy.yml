@@ -64,3 +64,30 @@ jobs:
             git reset --hard origin/master
             docker compose -f docker-compose.prod.yml build
             docker compose -f docker-compose.prod.yml up -d
+
+  smoke:
+    needs: deploy
+    runs-on: ubuntu-latest
+    steps:
+      - name: Health check (retry while container warms up)
+        run: |
+          ok=0
+          for i in $(seq 1 18); do
+            code=$(curl -s -o /tmp/health -w '%{http_code}' https://api.solven.uz/health || true)
+            if [ "$code" = "200" ] && grep -q '"status":"ok"' /tmp/health; then
+              echo "health ok on attempt $i: $(cat /tmp/health)"; ok=1; break
+            fi
+            echo "attempt $i: http=$code body=$(cat /tmp/health 2>/dev/null | head -c 80)"; sleep 10
+          done
+          [ "$ok" = "1" ] || { echo "::error::/health did not return 200 ok after ~3m (crash-loop?)"; exit 1; }
+
+      - name: Login error-path check (guards 502 + error masking)
+        run: |
+          resp=$(curl -s -X POST https://api.solven.uz/graphql \
+            -H 'Content-Type: application/json' \
+            -d '{"query":"mutation{login(input:{memberNick:\"ci_smoke_nobody\",memberPassword:\"x\"}){accessToken}}"}')
+          echo "response: $resp"
+          echo "$resp" | grep -q '502 Bad Gateway' && { echo "::error::login returned 502 (API down)"; exit 1; }
+          echo "$resp" | grep -q '"errors"' || { echo "::error::login did not return a GraphQL errors array"; exit 1; }
+          echo "$resp" | grep -qi 'No member' || echo "::warning::login error message changed (non-fatal, but check masking)"
+          echo "login error-path ok"
