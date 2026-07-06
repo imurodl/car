@@ -1,4 +1,5 @@
 import { BadRequestException, CanActivate, ExecutionContext, Injectable, ForbiddenException, Logger } from '@nestjs/common';
+import { GqlContextType } from '@nestjs/graphql';
 import { Reflector } from '@nestjs/core';
 import { AuthService } from '../auth.service';
 import { Message } from 'apps/solven-api/src/libs/enums/common.enum';
@@ -12,13 +13,13 @@ export class RolesGuard implements CanActivate {
 		private authService: AuthService,
 	) {}
 
-	async canActivate(context: ExecutionContext | any): Promise<boolean> {
+	async canActivate(context: ExecutionContext): Promise<boolean> {
 		const roles = this.reflector.get<string[]>('roles', context.getHandler());
 		if (!roles) return true;
 
 		this.logger.debug(`--- @guard() Authentication [RolesGuard]: ${roles} ---`);
 
-		if (context.contextType === 'graphql') {
+		if (context.getType<GqlContextType>() === 'graphql') {
 			const request = context.getArgByIndex(2).req;
 			const bearerToken = request.headers.authorization;
 			if (!bearerToken) throw new BadRequestException(Message.TOKEN_NOT_EXIST);

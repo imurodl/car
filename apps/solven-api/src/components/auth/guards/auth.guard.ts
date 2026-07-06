@@ -1,4 +1,5 @@
 import { BadRequestException, CanActivate, ExecutionContext, Injectable, Logger, UnauthorizedException } from '@nestjs/common';
+import { GqlContextType } from '@nestjs/graphql';
 import { AuthService } from '../auth.service';
 import { Message } from 'apps/solven-api/src/libs/enums/common.enum';
 
@@ -8,10 +9,10 @@ export class AuthGuard implements CanActivate {
 
 	constructor(private authService: AuthService) {}
 
-	async canActivate(context: ExecutionContext | any): Promise<boolean> {
+	async canActivate(context: ExecutionContext): Promise<boolean> {
 		this.logger.debug('--- @guard() Authentication [AuthGuard] ---');
 
-		if (context.contextType === 'graphql') {
+		if (context.getType<GqlContextType>() === 'graphql') {
 			const request = context.getArgByIndex(2).req;
 
 			const bearerToken = request.headers.authorization;

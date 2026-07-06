@@ -9,7 +9,7 @@ type FakeReq = { headers: { authorization?: string }; body: Record<string, any> 
 const makeContext = (opts: { contextType?: string; req?: FakeReq }) => {
 	const { contextType = 'graphql', req } = opts;
 	return {
-		contextType,
+		getType: () => contextType,
 		getHandler: () => () => undefined,
 		getArgByIndex: (i: number) => (i === 2 ? { req } : undefined),
 	} as any;

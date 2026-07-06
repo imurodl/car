@@ -19,8 +19,8 @@ export class AuthService {
 		return bcrypt.compare(password, hashedPassword);
 	}
 
-	private buildPayload(member: Member): T {
-		const payload: T = {};
+	private buildPayload(member: Member): Partial<Member> {
+		const payload: Partial<Member> = {};
 		Object.keys(member['_doc'] ? member['_doc'] : member).map((ele) => {
 			payload[`${ele}`] = member[`${ele}`];
 		});

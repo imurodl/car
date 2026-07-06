@@ -1,4 +1,5 @@
 import { CanActivate, ExecutionContext, Injectable, Logger } from '@nestjs/common';
+import { GqlContextType } from '@nestjs/graphql';
 import { AuthService } from '../auth.service';
 
 @Injectable()
@@ -7,10 +8,10 @@ export class WithoutGuard implements CanActivate {
 
 	constructor(private authService: AuthService) {}
 
-	async canActivate(context: ExecutionContext | any): Promise<boolean> {
+	async canActivate(context: ExecutionContext): Promise<boolean> {
 		this.logger.debug('--- @guard() Authentication [WithoutGuard] ---');
 
-		if (context.contextType === 'graphql') {
+		if (context.getType<GqlContextType>() === 'graphql') {
 			const request = context.getArgByIndex(2).req,
 				bearerToken = request.headers.authorization;
 

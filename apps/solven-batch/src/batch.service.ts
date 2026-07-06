@@ -32,12 +32,12 @@ export class BatchService {
 	public async batchTopCars(): Promise<void> {
 		const cars: Car[] = await this.carModel.find({ carStatus: CarStatus.ACTIVE, carRank: 0 }).exec();
 
-		const promisedList = cars.map(async (ele: Car) => {
+		const bulkOps = cars.map((ele: Car) => {
 			const { _id, carLikes, carViews } = ele;
 			const rank = carLikes * 2 + carViews * 1;
-			return await this.carModel.findByIdAndUpdate(_id, { carRank: rank });
+			return { updateOne: { filter: { _id }, update: { carRank: rank } } };
 		});
-		await Promise.all(promisedList);
+		if (bulkOps.length) await this.carModel.bulkWrite(bulkOps);
 	}
 
 	public async batchTopAgents(): Promise<void> {
@@ -45,12 +45,12 @@ export class BatchService {
 			.find({ memberType: MemberType.AGENT, memberStatus: MemberStatus.ACTIVE, memberRank: 0 })
 			.exec();
 
-		const promisedList = agents.map(async (ele: Member) => {
+		const bulkOps = agents.map((ele: Member) => {
 			const { _id, memberArticles, memberViews, memberLikes, memberCars } = ele;
 			const rank = memberCars * 5 + memberArticles * 3 + memberLikes * 2 + memberViews * 1;
-			return await this.memberModel.findByIdAndUpdate(_id, { memberRank: rank });
+			return { updateOne: { filter: { _id }, update: { memberRank: rank } } };
 		});
-		await Promise.all(promisedList);
+		if (bulkOps.length) await this.memberModel.bulkWrite(bulkOps);
 	}
 
 	getHello(): string {
