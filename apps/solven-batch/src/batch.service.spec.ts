@@ -37,8 +37,8 @@ describe('BatchService', () => {
 
 			expect(carModel.bulkWrite).toHaveBeenCalledTimes(1);
 			expect(carModel.bulkWrite).toHaveBeenCalledWith([
-				{ updateOne: { filter: { _id: 'c1' }, update: { carRank: 10 } } },
-				{ updateOne: { filter: { _id: 'c2' }, update: { carRank: 10 } } },
+				{ updateOne: { filter: { _id: 'c1' }, update: { $set: { carRank: 10 } } } },
+				{ updateOne: { filter: { _id: 'c2' }, update: { $set: { carRank: 10 } } } },
 			]);
 		});
 
@@ -61,7 +61,7 @@ describe('BatchService', () => {
 
 			expect(memberModel.bulkWrite).toHaveBeenCalledTimes(1);
 			expect(memberModel.bulkWrite).toHaveBeenCalledWith([
-				{ updateOne: { filter: { _id: 'a1' }, update: { memberRank: 26 } } },
+				{ updateOne: { filter: { _id: 'a1' }, update: { $set: { memberRank: 26 } } } },
 			]);
 		});
 	});

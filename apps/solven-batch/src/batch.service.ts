@@ -35,7 +35,7 @@ export class BatchService {
 		const bulkOps = cars.map((ele: Car) => {
 			const { _id, carLikes, carViews } = ele;
 			const rank = carLikes * 2 + carViews * 1;
-			return { updateOne: { filter: { _id }, update: { carRank: rank } } };
+			return { updateOne: { filter: { _id }, update: { $set: { carRank: rank } } } };
 		});
 		if (bulkOps.length) await this.carModel.bulkWrite(bulkOps);
 	}
@@ -48,7 +48,7 @@ export class BatchService {
 		const bulkOps = agents.map((ele: Member) => {
 			const { _id, memberArticles, memberViews, memberLikes, memberCars } = ele;
 			const rank = memberCars * 5 + memberArticles * 3 + memberLikes * 2 + memberViews * 1;
-			return { updateOne: { filter: { _id }, update: { memberRank: rank } } };
+			return { updateOne: { filter: { _id }, update: { $set: { memberRank: rank } } } };
 		});
 		if (bulkOps.length) await this.memberModel.bulkWrite(bulkOps);
 	}
